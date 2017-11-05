@@ -9,17 +9,22 @@ import pandas as pd
 
 class gameBoard(object):
     def __init__(self):
-        self.data = []
-        self.board = gameBoard.createEmptyBoard()
+        self.data = []        
+        self.stateColumn = 'state'
+        self.playerOneMark = 1
+        self.playerTwoMark = -1
+        self.board = self.createEmptyBoard()
 
-    @staticmethod
-    def createEmptyBoard():
-        return pd.DataFrame({'state' : np.zeros((9,))})
+    def createEmptyBoard(self):
+        return pd.DataFrame({self.stateColumn : np.zeros((9,))})
 
     def makeMove(self, spot, player):
-        self.board.at[spot, 'state'] = player
+        self.board.at[spot, self.stateColumn] = player
         
     def possibleMoves(self):
-        return self.board.query("state == 0")
+        return self.board.query(str(self.stateColumn, " == 0"))
     
-    
+    def didPlayerOneWin(self):
+        if sum(self.board[0:3]['state']) == 3:
+            return True
+        return False
