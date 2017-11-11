@@ -37,20 +37,38 @@ class GameBoard(object):
     def createEmptyBoard(self):
         return np.zeros((9, 1))
 
+    def set_board(self, new_board):
+        self.board = new_board
+
     def makeMove(self, spot, player):
         self.board[spot][0] = player
 
     def possibleMoves(self):
         return self.board == 0
 
+    def createMatrixFromPossibleMoves(self, playerMark):
+        returnMatrix = []
+        possible_moves = self.possibleMoves()
+        for x in range(0, len(possible_moves)):
+            to_be_added = self.board.copy()
+            to_be_added[x] = playerMark
+            returnMatrix.append(to_be_added)
+        return returnMatrix
+
     def didPlayerOneWin(self):
-        if (np.sum(self.board[self.topRow()]) == 3) | \
-                (np.sum(self.board[self.middleRow()]) == 3) | \
-                (np.sum(self.board[self.bottomRow()]) == 3) | \
-                (np.sum(self.board[self.leftColumn()]) == 3) | \
-                (np.sum(self.board[self.middleColumn()]) == 3) | \
-                (np.sum(self.board[self.rightColumn()]) == 3) | \
-                (np.sum(self.board[self.backSlash()]) == 3) | \
-                (np.sum(self.board[self.forwardSlash()]) == 3):
+        return (self.didPlayerWin(self.playerOneMark * 3))
+
+    def didPlayerTwoWin(self):
+        return (self.didPlayerWin(self.playerTwoMark * 3))
+
+    def didPlayerWin(self, totalToTarget):
+        if (np.sum(self.board[self.topRow()]) == totalToTarget) | \
+                (np.sum(self.board[self.middleRow()]) == totalToTarget) | \
+                (np.sum(self.board[self.bottomRow()]) == totalToTarget) | \
+                (np.sum(self.board[self.leftColumn()]) == totalToTarget) | \
+                (np.sum(self.board[self.middleColumn()]) == totalToTarget) | \
+                (np.sum(self.board[self.rightColumn()]) == totalToTarget) | \
+                (np.sum(self.board[self.backSlash()]) == totalToTarget) | \
+                (np.sum(self.board[self.forwardSlash()]) == totalToTarget):
             return True
         return False
