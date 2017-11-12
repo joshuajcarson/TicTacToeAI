@@ -32,7 +32,7 @@ class TicTacToeGeneratorMethods(TestCase):
     def test_shouldMarkSpecificSpotWithPlayerValue(self):
         randomSpotToTest = random.randint(0, 8)
         self.gameBoard.makeMove(randomSpotToTest, self.gameBoard.playerOneMark)
-        self.assertEqual(self.board[randomSpotToTest][0], self.gameBoard.playerOneMark)
+        self.assertEqual(self.board[randomSpotToTest], self.gameBoard.playerOneMark)
 
     def test_shouldRemoveSpotAsPossibleSpotAfterMarked(self):
         randomSpotToTest = random.randint(0, 8)
@@ -62,13 +62,6 @@ class TicTacToeGeneratorMethods(TestCase):
         self.assertEqual(1, play_history[1][0])
         self.assertEqual(1, play_history[1][1])
 
-    def test_shouldClearHistoryWhenBoardIsEmptyed(self):
-        self.gameBoard.makeMove(0, self.gameBoard.playerOneMark)
-        self.gameBoard.createEmptyBoard()
-        self.gameBoard.makeMove(3, self.gameBoard.playerTwoMark)
-        play_history = self.gameBoard.getPlayHistory()
-        self.assertEqual(1, len(play_history))
-
     def test_setBoardShouldChangeTheExistingBoardToThePassedInBoard(self):
         to_be_set = self.board.copy()
         to_be_set[2] = -1
@@ -80,9 +73,6 @@ class TicTacToeGeneratorMethods(TestCase):
         self.gameBoard.makeMove(randomSpotToTest, self.gameBoard.playerOneMark)
         possibleSpots = self.gameBoard.possibleMoves()
         self.assertEqual(len(possibleSpots), 8)
-
-    def test_shouldClaimPlayerOneDidNotWinByDefault(self):
-        self.assertFalse(self.gameBoard.didPlayerOneWin())
 
     def test_shouldCreateMatrixOfFutureStateFromPossibleMoveAndImpactNoOtherSpace(self):
         possible_moves_matrix = self.gameBoard.createMatrixFromPossibleMoves(self.gameBoard.playerOneMark)
@@ -98,6 +88,9 @@ class TicTacToeGeneratorMethods(TestCase):
                 self.assertTrue(True)
                 return
         self.assertTrue(False, "None of the possible moves was the move chosen")
+
+    def test_shouldClaimPlayerOneDidNotWinByDefault(self):
+        self.assertFalse(self.gameBoard.didPlayerOneWin())
 
     def test_shouldClaimTopRowAsWinForPlayerOneIfAllMarkedTheSame(self):
         self.gameBoard.makeMove(0, self.gameBoard.playerOneMark)

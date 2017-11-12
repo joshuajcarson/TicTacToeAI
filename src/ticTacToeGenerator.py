@@ -36,20 +36,21 @@ class GameBoard(object):
         self.playerTwoMark = -1
         self.board = self.createEmptyBoard()
         self.playHistory = []
+        self.overallHistory = []
+        self.overallResults = []
 
     def getPlayHistory(self):
         return self.playHistory
 
     def createEmptyBoard(self):
-        self.playHistory = []
-        return np.zeros((9, 1)).astype(int)
+        return np.zeros((9, 1))
 
     def set_board(self, new_board):
         self.board = new_board
         self.playHistory.append(self.board.copy())
 
     def makeMove(self, spot, player):
-        self.board[spot][0] = player
+        self.board[spot] = player
         self.playHistory.append(self.board.copy())
 
     def possibleMoves(self):
@@ -89,10 +90,9 @@ class GameBoard(object):
         return False
 
     def printGameState(self):
-        print(str(int(self.board[0])) + '|' + str(int(self.board[1])) + '|' + str(int(self.board[2])))
-        print(str(int(self.board[3])) + '|' + str(int(self.board[4])) + '|' + str(int(self.board[5])))
-        print(str(int(self.board[6])) + '|' + str(int(self.board[7])) + '|' + str(int(self.board[8])))
-        print("_______________________________")
+        print(str(self.board[0][0]) + '|' + str(self.board[1][0]) + '|' + str(self.board[2][0]))
+        print(str(self.board[3][0]) + '|' + str(self.board[4][0]) + '|' + str(self.board[5][0]))
+        print(str(self.board[6][0]) + '|' + str(self.board[7][0]) + '|' + str(self.board[8][0]))
 
     def playOneFullRandomGame(self):
         self.board = self.createEmptyBoard()
@@ -101,9 +101,17 @@ class GameBoard(object):
                 self.playRandomMove(self.playerOneMark)
             else:
                 self.playRandomMove(self.playerTwoMark)
-            self.printGameState()
             if self.didPlayerOneWin():
                 return self.playerOneMark
             if self.didPlayerTwoWin():
                 return self.playerTwoMark
         return 0
+
+
+dumb = GameBoard()
+for _ in range(0, 200):
+    results = dumb.playOneFullRandomGame()
+    for y in range(0, len(dumb.playHistory)):
+        dumb.overallHistory.append(dumb.playHistory[y])
+        dumb.overallResults.append(results)
+    dumb.playHistory = []
