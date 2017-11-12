@@ -38,7 +38,36 @@ class TicTacToeGeneratorMethods(TestCase):
         randomSpotToTest = random.randint(0, 8)
         self.gameBoard.makeMove(randomSpotToTest, self.gameBoard.playerOneMark)
         possibleSpots = self.gameBoard.possibleMoves()
-        self.assertFalse(possibleSpots[randomSpotToTest])
+        howManyOfTheRandomSpotFoundInPossibleMoves = len(np.where(possibleSpots == randomSpotToTest)[0])
+        self.assertEqual(0, howManyOfTheRandomSpotFoundInPossibleMoves)
+
+    def test_shouldStoreNothingBeforeAnyPlayIsMade(self):
+        play_history = self.gameBoard.getPlayHistory()
+        self.assertEqual(0, len(play_history))
+
+    def test_shouldStoreTheLastPlayMadeForTheFirstPlay(self):
+        self.gameBoard.makeMove(0, self.gameBoard.playerOneMark)
+        play_history = self.gameBoard.getPlayHistory()
+        self.assertEqual(1, len(play_history))
+        self.assertEqual(1, np.sum(play_history))
+        self.assertEqual(1, play_history[0][0])
+
+    def test_shouldStoreThePlaysMadeInOrder(self):
+        self.gameBoard.makeMove(0, self.gameBoard.playerOneMark)
+        self.gameBoard.makeMove(1, self.gameBoard.playerOneMark)
+        play_history = self.gameBoard.getPlayHistory()
+        self.assertEqual(2, len(play_history))
+        self.assertEqual(3, np.sum(play_history))
+        self.assertEqual(1, play_history[0][0])
+        self.assertEqual(1, play_history[1][0])
+        self.assertEqual(1, play_history[1][1])
+
+    def test_shouldClearHistoryWhenBoardIsEmptyed(self):
+        self.gameBoard.makeMove(0, self.gameBoard.playerOneMark)
+        self.gameBoard.createEmptyBoard()
+        self.gameBoard.makeMove(3, self.gameBoard.playerTwoMark)
+        play_history = self.gameBoard.getPlayHistory()
+        self.assertEqual(1, len(play_history))
 
     def test_setBoardShouldChangeTheExistingBoardToThePassedInBoard(self):
         to_be_set = self.board.copy()
@@ -50,7 +79,7 @@ class TicTacToeGeneratorMethods(TestCase):
         randomSpotToTest = random.randint(0, 8)
         self.gameBoard.makeMove(randomSpotToTest, self.gameBoard.playerOneMark)
         possibleSpots = self.gameBoard.possibleMoves()
-        self.assertEqual(sum(possibleSpots), 8)
+        self.assertEqual(len(possibleSpots), 8)
 
     def test_shouldClaimPlayerOneDidNotWinByDefault(self):
         self.assertFalse(self.gameBoard.didPlayerOneWin())
@@ -58,8 +87,17 @@ class TicTacToeGeneratorMethods(TestCase):
     def test_shouldCreateMatrixOfFutureStateFromPossibleMoveAndImpactNoOtherSpace(self):
         possible_moves_matrix = self.gameBoard.createMatrixFromPossibleMoves(self.gameBoard.playerOneMark)
         self.assertEqual(9, np.sum(possible_moves_matrix))
-        for x in range(0, 8):
+        for x in range(0, 9):
             self.assertEqual(self.gameBoard.playerOneMark, possible_moves_matrix[x][x])
+
+    def test_shouldPlayerOneOfTheMovesFromThePossibleMoves(self):
+        possible_moves_matrix = self.gameBoard.createMatrixFromPossibleMoves(self.gameBoard.playerOneMark)
+        self.gameBoard.playRandomMove(self.gameBoard.playerOneMark)
+        for x in range(0, len(possible_moves_matrix)):
+            if np.allclose(possible_moves_matrix[x], self.gameBoard.board):
+                self.assertTrue(True)
+                return
+        self.assertTrue(False, "None of the possible moves was the move chosen")
 
     def test_shouldClaimTopRowAsWinForPlayerOneIfAllMarkedTheSame(self):
         self.gameBoard.makeMove(0, self.gameBoard.playerOneMark)

@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 
 __author__ = 'joshuajcarson'
@@ -33,33 +35,46 @@ class GameBoard(object):
         self.playerOneMark = 1
         self.playerTwoMark = -1
         self.board = self.createEmptyBoard()
+        self.playHistory = []
+
+    def getPlayHistory(self):
+        return self.playHistory
 
     def createEmptyBoard(self):
-        return np.zeros((9, 1))
+        self.playHistory = []
+        return np.zeros((9, 1)).astype(int)
 
     def set_board(self, new_board):
         self.board = new_board
+        self.playHistory.append(self.board.copy())
 
     def makeMove(self, spot, player):
         self.board[spot][0] = player
+        self.playHistory.append(self.board.copy())
 
     def possibleMoves(self):
-        return self.board == 0
+        return np.where(self.board == 0)[0]
 
     def createMatrixFromPossibleMoves(self, playerMark):
         returnMatrix = []
         possible_moves = self.possibleMoves()
         for x in range(0, len(possible_moves)):
             to_be_added = self.board.copy()
-            to_be_added[x] = playerMark
+            to_be_added[possible_moves[x]] = playerMark
             returnMatrix.append(to_be_added)
         return returnMatrix
 
+    def playRandomMove(self, playerMark):
+        possible_moves = self.createMatrixFromPossibleMoves(playerMark)
+        move_to_pick = random.randint(0, len(possible_moves) - 1)
+        self.set_board(possible_moves[move_to_pick])
+        return
+
     def didPlayerOneWin(self):
-        return (self.didPlayerWin(self.playerOneMark * 3))
+        return self.didPlayerWin(self.playerOneMark * 3)
 
     def didPlayerTwoWin(self):
-        return (self.didPlayerWin(self.playerTwoMark * 3))
+        return self.didPlayerWin(self.playerTwoMark * 3)
 
     def didPlayerWin(self, totalToTarget):
         if (np.sum(self.board[self.topRow()]) == totalToTarget) | \
@@ -72,3 +87,23 @@ class GameBoard(object):
                 (np.sum(self.board[self.forwardSlash()]) == totalToTarget):
             return True
         return False
+
+    def printGameState(self):
+        print(str(int(self.board[0])) + '|' + str(int(self.board[1])) + '|' + str(int(self.board[2])))
+        print(str(int(self.board[3])) + '|' + str(int(self.board[4])) + '|' + str(int(self.board[5])))
+        print(str(int(self.board[6])) + '|' + str(int(self.board[7])) + '|' + str(int(self.board[8])))
+        print("_______________________________")
+
+    def playOneFullRandomGame(self):
+        self.board = self.createEmptyBoard()
+        for x in range(0, 9):
+            if x % 2 == 0:
+                self.playRandomMove(self.playerOneMark)
+            else:
+                self.playRandomMove(self.playerTwoMark)
+            self.printGameState()
+            if self.didPlayerOneWin():
+                return self.playerOneMark
+            if self.didPlayerTwoWin():
+                return self.playerTwoMark
+        return 0
