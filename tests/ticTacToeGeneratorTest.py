@@ -1,5 +1,6 @@
 import random
 from unittest import TestCase, main
+from unittest.mock import MagicMock
 
 import numpy as np
 
@@ -88,6 +89,23 @@ class TicTacToeGeneratorMethods(TestCase):
                 self.assertTrue(True)
                 return
         self.assertTrue(False, "None of the possible moves was the move chosen")
+
+    def test_shouldPickRecommendedMoveFromPossibleMoves(self):
+        possible_moves_matrix = self.gameBoard.createMatrixFromPossibleMoves(self.gameBoard.playerOneMark)
+        estimator = []
+        random_index_for_best_move = random.randint(0, 9)
+        self.gameBoard.get_best_move_index_player_one = MagicMock(return_value=random_index_for_best_move)
+        self.gameBoard.playBestEstimatedMove(self.gameBoard.playerOneMark, estimator)
+        self.assertTrue(np.allclose(possible_moves_matrix[random_index_for_best_move], self.gameBoard.board))
+
+    def test_shouldClearAllStoredHistoryOnClearCommand(self):
+        self.gameBoard.overallResults = [9, 1]
+        self.gameBoard.overallHistory = [1]
+        self.gameBoard.winnerResults = [1, 2]
+        self.gameBoard.clear_history()
+        self.assertTrue(len(self.gameBoard.overallResults) == 0)
+        self.assertTrue(len(self.gameBoard.overallHistory) == 0)
+        self.assertTrue(len(self.gameBoard.winnerResults) == 0)
 
     def test_shouldClaimPlayerOneDidNotWinByDefault(self):
         self.assertFalse(self.gameBoard.didPlayerOneWin())
